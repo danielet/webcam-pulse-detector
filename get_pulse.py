@@ -8,6 +8,9 @@ import datetime
 from serial import Serial
 import socket
 import sys
+import time 
+
+import csv
 
 class getPulseApp(object):
 
@@ -22,30 +25,16 @@ class getPulseApp(object):
     def __init__(self, args):
         # Imaging device - must be a connected camera (not an ip camera or mjpeg
         # stream)
+
+                
         serial = args.serial
         baud = args.baud
+        name = args.name
         self.send_serial = False
         self.send_udp = False
-        if serial:
-            self.send_serial = True
-            if not baud:
-                baud = 9600
-            else:
-                baud = int(baud)
-            self.serial = Serial(port=serial, baudrate=baud)
-
-        udp = args.udp
-        if udp:
-            self.send_udp = True
-            if ":" not in udp:
-                ip = udp
-                port = 5005
-            else:
-                ip, port = udp.split(":")
-                port = int(port)
-            self.udp = (ip, port)
-            self.sock = socket.socket(socket.AF_INET, # Internet
-                 socket.SOCK_DGRAM) # UDP
+        self.name = name
+        self.fileName = []
+        # print(name)
 
         self.cameras = []
         self.selected_cam = 0
@@ -57,6 +46,7 @@ class getPulseApp(object):
                 break
         self.w, self.h = 0, 0
         self.pressed = 0
+        self.writeCSV = False
         # Containerized analysis of recieved image frames (an openMDAO assembly)
         # is defined next.
 
@@ -93,11 +83,23 @@ class getPulseApp(object):
         """
         Writes current data to a csv file
         """
-        fn = "Webcam-pulse" + str(datetime.datetime.now())
-        fn = fn.replace(":", "_").replace(".", "_")
-        data = np.vstack((self.processor.times, self.processor.samples)).T
-        np.savetxt(fn + ".csv", data, delimiter=',')
-        print "Writing csv"
+        today = datetime.datetime.today()
+        format = "%b %d %H:%M:%S"
+        s = today.strftime(format)
+        d = datetime.datetime.strptime(s, format)
+
+        fn = "./OUTPUT_FILES/" + self.name +"_ICC2015_RR_" + d.strftime(format)
+        # fn2 = self.name +"_ICC2015_HR_" + d.strftime(format)
+        fn = fn.replace(":", "_").replace(" ", "_")
+        
+        # self.fileName = fn
+
+        # with open(fn, 'a') as fp:
+        self.fileName = open(fn , 'a')
+        
+
+        self.writeCSV = True
+        
 
     def toggle_search(self):
         """
@@ -106,8 +108,10 @@ class getPulseApp(object):
         Locking the forehead location in place significantly improves
         data quality, once a forehead has been sucessfully isolated.
         """
-        #state = self.processor.find_faces.toggle()
+
+        
         state = self.processor.find_faces_toggle()
+        
         print "face detection lock =", not state
 
     def toggle_display_plot(self):
@@ -161,6 +165,7 @@ class getPulseApp(object):
 
         for key in self.key_controls.keys():
             if chr(self.pressed) == key:
+                print('enter')
                 self.key_controls[key]()
 
     def main_loop(self):
@@ -177,7 +182,9 @@ class getPulseApp(object):
         # set current image frame to the processor's input
         self.processor.frame_in = frame
         # process the image frame to perform all needed analysis
+        
         self.processor.run(self.selected_cam)
+        
         # collect the output frame for display
         output_frame = self.processor.frame_out
 
@@ -188,11 +195,22 @@ class getPulseApp(object):
         if self.bpm_plot:
             self.make_bpm_plot()
 
-        if self.send_serial:
-            self.serial.write(str(self.processor.bpm) + "\r\n")
+        if self.writeCSV:
+            data = np.array([self.processor.actualTime, 
+                         self.processor.bpm, 
+                         self.processor.RRvalue]).T
+            print(data)
+# , self.processor.bpm , self.processor.RRvalue
+            self.fileName.write("%s" % self.processor.actualTime + " ")
+            self.fileName.write("%s" % self.processor.bpm + " ")
+            self.fileName.write("%s" % self.processor.RRvalue + "\n")
+            # np.savetxt("./CSV_FILE/"+ self.fileName + ".csv", data , delimiter=',')
+        # data = np.array([self.processor.bpms , self.processor.RR]).T                     
+        # print(data)
+            
+        
 
-        if self.send_udp:
-            self.sock.sendto(str(self.processor.bpm), self.udp)
+
 
         # handle any key presses
         self.key_handler()
@@ -205,6 +223,8 @@ if __name__ == "__main__":
                         help='Baud rate for serial transmission')
     parser.add_argument('--udp', default=None,
                         help='udp address:port destination for bpm data')
+    parser.add_argument('--name', default='unknown',
+                        help='first name is going to do the experiment')
 
     args = parser.parse_args()
     App = getPulseApp(args)
