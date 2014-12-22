@@ -33,17 +33,22 @@ class getPulseApp(object):
         self.send_serial = False
         self.send_udp = False
         self.name = name
-        self.fileName = []
-        # print(name)
 
+        self.videoinput = args.videoInput
+
+        self.fileName = []
+        
         self.cameras = []
         self.selected_cam = 0
+        print(args.videoInput)
         for i in xrange(3):
-            camera = Camera(camera=i)  # first camera by default
+            
+            camera = Camera(camera=i, videoPass = args.videoInput)  # first camera by default
             if camera.valid or not len(self.cameras):
                 self.cameras.append(camera)
             else:
                 break
+
         self.w, self.h = 0, 0
         self.pressed = 0
         self.writeCSV = False
@@ -172,48 +177,53 @@ class getPulseApp(object):
         """
         Single iteration of the application's main loop.
         """
+
         # Get current image frame from the camera
         frame = self.cameras[self.selected_cam].get_frame()
-        self.h, self.w, _c = frame.shape
+        if frame != None:
+            self.h, self.w, _c = frame.shape
 
-        # display unaltered frame
-        # imshow("Original",frame)
+            # display unaltered frame
+            # imshow("Original",frame)
 
-        # set current image frame to the processor's input
-        self.processor.frame_in = frame
-        # process the image frame to perform all needed analysis
-        
-        self.processor.run(self.selected_cam)
-        
-        # collect the output frame for display
-        output_frame = self.processor.frame_out
-
-        # show the processed/annotated output frame
-        imshow("Processed", output_frame)
-
-        # create and/or update the raw data display if needed
-        if self.bpm_plot:
-            self.make_bpm_plot()
-
-        if self.writeCSV:
-            data = np.array([self.processor.actualTime, 
-                         self.processor.bpm, 
-                         self.processor.RRvalue]).T
-            print(data)
-# , self.processor.bpm , self.processor.RRvalue
-            self.fileName.write("%s" % self.processor.actualTime + " ")
-            self.fileName.write("%s" % self.processor.bpm + " ")
-            self.fileName.write("%s" % self.processor.RRvalue + "\n")
-            # np.savetxt("./CSV_FILE/"+ self.fileName + ".csv", data , delimiter=',')
-        # data = np.array([self.processor.bpms , self.processor.RR]).T                     
-        # print(data)
+            # set current image frame to the processor's input
+            self.processor.frame_in = frame
+            # process the image frame to perform all needed analysis
             
-        
+            self.processor.run(self.selected_cam)
+            
+            # collect the output frame for display
+            output_frame = self.processor.frame_out
 
+            # show the processed/annotated output frame
+            imshow("Processed", output_frame)
 
+            # create and/or update the raw data display if needed
+            if self.bpm_plot:
+                self.make_bpm_plot()
 
-        # handle any key presses
-        self.key_handler()
+            if self.writeCSV:
+                data = np.array([self.processor.actualTime, 
+                             self.processor.bpm, 
+                             self.processor.RRvalue]).T
+                print(data)
+    # , self.processor.bpm , self.processor.RRvalue
+                self.fileName.write("%s" % self.processor.actualTime + " ")
+                self.fileName.write("%s" % self.processor.bpm + " ")
+                self.fileName.write("%s" % self.processor.RRvalue + "\n")
+                # np.savetxt("./CSV_FILE/"+ self.fileName + ".csv", data , delimiter=',')
+            # data = np.array([self.processor.bpms , self.processor.RR]).T                     
+            # print(data)                            
+            # handle any key presses
+            self.key_handler()
+        else:
+            print "Exiting"
+            for cam in self.cameras:
+                cam.cam.release()
+            if self.send_serial:
+                self.serial.close()
+            sys.exit()
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Webcam pulse detector.')
@@ -224,6 +234,9 @@ if __name__ == "__main__":
     parser.add_argument('--udp', default=None,
                         help='udp address:port destination for bpm data')
     parser.add_argument('--name', default='unknown',
+                        help='first name is going to do the experiment')
+
+    parser.add_argument('--videoInput', default=None,
                         help='first name is going to do the experiment')
 
     args = parser.parse_args()

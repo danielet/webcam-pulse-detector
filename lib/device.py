@@ -19,8 +19,15 @@ class ipCamera(object):
 
 class Camera(object):
 
-    def __init__(self, camera = 0):
-        self.cam = cv2.VideoCapture(camera)
+    def __init__(self, camera = 0 , videoPass = 'None'):
+        
+        #MODIFICA MATTEO
+
+        if videoPass == None:
+            self.cam = cv2.VideoCapture(camera)            
+        else:            
+            self.cam = cv2.VideoCapture(videoPass)
+        
         self.valid = False
         try:
             resp = self.cam.read()

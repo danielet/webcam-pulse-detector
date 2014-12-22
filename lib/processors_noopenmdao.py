@@ -241,7 +241,7 @@ class findFaceGetPulse(object):
             self.RRvalue = RR
             self.actualTime = self.times[-1]
             print(self.actualTime, self.bpm, self.RRvalue )
-	    x, y, w, h = self.get_subface_coord(0.5, 0.18, 0.25, 0.15)
+    	    x, y, w, h = self.get_subface_coord(0.5, 0.18, 0.25, 0.15)
             r = alpha * self.frame_in[y:y + h, x:x + w, 0]
             g = alpha * \
                 self.frame_in[y:y + h, x:x + w, 1] + \
