@@ -9,9 +9,9 @@ import argparse
 from serial import Serial
 import socket
 import sys
-import time 
+import time
 
-#modules required for the picamera attrbute of the raspberry pi 
+#modules required for the picamera attrbute of the raspberry pi
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import cv2
@@ -34,7 +34,7 @@ class getPulseApp(object):
          self.fileName = []
          self.cameras = []
          self.selected_cam = 0
-         
+
          self.w, self.h = 0, 0
          self.pressed = 0
          self.writeCSV = False
@@ -55,8 +55,8 @@ class getPulseApp(object):
 
          # Maps keystrokes to specified methods
          #(A GUI window must have focus for these to work)
-         self.key_controls = {"s": self.toggle_search,
-                              "d": self.toggle_display_plot,                            
+         self.key_controls = {"s": lambda: None, #self.toggle_search,
+                              "d": self.toggle_display_plot,
                               "f": self.write_csv}
 
     def write_csv(self):
@@ -70,13 +70,13 @@ class getPulseApp(object):
 
          fn = "./OUTPUT_FILES/" + self.name +"_ICC2015_RR_" + d.strftime(format)
          # fn2 = self.name +"_ICC2015_HR_" + d.strftime(format)
-         fn = fn.replace(":", "_").replace(" ", "_")    
+         fn = fn.replace(":", "_").replace(" ", "_")
          # self.fileName = fn
          # with open(fn, 'a') as fp:
          self.fileName = open(fn , 'a')
 
          self.writeCSV = True
-        
+
 
     def toggle_search(self):
          """
@@ -85,7 +85,7 @@ class getPulseApp(object):
          Locking the forehead location in place significantly improves
          data quality, once a forehead has been sucessfully isolated.
          """
-         state = self.processor.find_faces_toggle()        
+         state = self.processor.find_faces_toggle()
          print ("face detection lock =", not state)
 
     def toggle_display_plot(self):
@@ -130,7 +130,7 @@ class getPulseApp(object):
             self.processor.frame_in = frame
             # process the image frame to perform all needed analysis
             self.processor.run()
-            
+
             # collect the output frame for display
             output_frame = self.processor.frame_out
 
@@ -149,12 +149,12 @@ class getPulseApp(object):
                 self.fileName.write("%s" % self.processor.bpm + " ")
                 self.fileName.write("%s" % self.processor.RRvalue + "\n")
                 # np.savetxt("./CSV_FILE/"+ self.fileName + ".csv", data , delimiter=',')
-            # data = np.array([self.processor.bpms , self.processor.RR]).T                     
-            # print(data)                            
+            # data = np.array([self.processor.bpms , self.processor.RR]).T
+            # print(data)
             # handle any key presses
             self.key_handler()
         else:
-            print ("Exiting")            
+            print ("Exiting")
             sys.exit()
 
 
@@ -196,7 +196,7 @@ if __name__ == "__main__":
     # # and occupied/unoccupied text
         image = frame.array
         key = cv2.waitKey(1) & 0xFF
-        App.main_loop(image)    
+        App.main_loop(image)
         rawCapture.truncate(0)
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
