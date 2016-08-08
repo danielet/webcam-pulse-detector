@@ -211,7 +211,7 @@ class findFaceGetPulse(object):
         self.samples = processed
 
         print("Data Buffer Length:", self.data_buffer)
-        print("Processed Length:", self.processed)
+        print("Processed Length:", processed)
 
         if L > 10:
 
