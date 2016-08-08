@@ -10,23 +10,20 @@ Whole-frame image processing components & helper methods
 
 
 class RGBSplit(Component):
-
     """
     Extract the red, green, and blue channels from an (n,m,3) shaped
     array representing a single image frame with RGB color coding.
 
     At its core, a pretty straighforward numpy slicing operation.
     """
-
-    def __init__(self):
+  def __init__(self):
         super(RGBSplit, self).__init__()
         self.add("frame_in", Array(iotype="in"))
 
         self.add("R", Array(iotype="out"))
         self.add("G", Array(iotype="out"))
         self.add("B", Array(iotype="out"))
-
-    def execute(self):
+def execute(self):
         self.R = self.frame_in[:, :, 0]
         self.G = self.frame_in[:, :, 1]
         self.B = self.frame_in[:, :, 2]
@@ -79,7 +76,6 @@ class CVwrapped(Component):
 
 
 class Grayscale(CVwrapped):
-
     """
     Turn (m,n,3) shaped RGB image frame to a (m,n) frame
     Discards color information to produce simple image matrix.
@@ -101,7 +97,6 @@ class equalizeContrast(CVwrapped):
 
 
 class showBPMtext(Component):
-
     """
     Shows the estimated BPM in the image frame
     """
@@ -118,6 +113,8 @@ class showBPMtext(Component):
         self.add("frame_in", Array(iotype="in"))
         self.add("frame_out", Array(iotype="out"))
         self.bpms = []
+
+    def __init__(self)
 
     def execute(self):
         self.bpms.append([time.time(), self.bpm])
