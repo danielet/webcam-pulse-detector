@@ -138,6 +138,8 @@ class findFaceGetPulse(object):
 
         col = (100, 255, 100)
 
+        self.data_buffer, self.times, self.trained = [], [], False
+
         if self.find_faces:
 #the cv2.putText function displays on the screen which keys to enter to navigate the camera. The function
 #has been commented out in order to create a cleaner mirror interface.
@@ -153,7 +155,7 @@ class findFaceGetPulse(object):
             else:
                 masked_gray = self.gray
 
-            self.data_buffer, self.times, self.trained = [], [], False
+            # self.data_buffer, self.times, self.trained = [], [], False
             detected = list(self.face_cascade.detectMultiScale(masked_gray,
                                                                scaleFactor=1.3,
                                                                minNeighbors=4,
@@ -210,7 +212,7 @@ class findFaceGetPulse(object):
 
         print "L:", L
 
-        if L > 0:
+        if L > 10:
 
             self.output_dim = processed.shape[0]
 
