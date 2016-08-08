@@ -138,7 +138,7 @@ class findFaceGetPulse(object):
 
         col = (100, 255, 100)
 
-        self.data_buffer, self.times, self.trained = [], [], False
+        # self.data_buffer, self.times, self.trained = [], [], False
 
         if self.find_faces:
 #the cv2.putText function displays on the screen which keys to enter to navigate the camera. The function
