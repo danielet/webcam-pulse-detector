@@ -173,8 +173,8 @@ class findFaceGetPulse(object):
                        (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
             self.draw_rect(forehead1)
             x, y, w, h = forehead1
-            cv2.putText(self.frame_out, "Forehead",
-                       (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
+            # cv2.putText(self.frame_out, "Forehead",
+            #            (x, y), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
 
 	# set([1, 1, 2, 2]) will just be {1, 2}
         if set(self.face_rect) == set([1, 1, 2, 2]):
@@ -184,13 +184,13 @@ class findFaceGetPulse(object):
         #     self.frame_out, "Press 'C' to change camera (current: %s)" % str(
         #         cam),
         #     (10, 25), cv2.FONT_HERSHEY_PLAIN, 1.25, col)
-        cv2.putText(
-            self.frame_out, "Press 'S' to restart",
-                   (10, 50), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
-        cv2.putText(self.frame_out, "Press 'D' to toggle data plot",
-                   (10, 75), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
-        cv2.putText(self.frame_out, "Press 'Esc' to quit",
-                   (10, 100), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
+        # cv2.putText(
+        #     self.frame_out, "Press 'S' to restart",
+        #            (10, 50), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
+        # cv2.putText(self.frame_out, "Press 'D' to toggle data plot",
+        #            (10, 75), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
+        # cv2.putText(self.frame_out, "Press 'Esc' to quit",
+        #            (10, 100), cv2.FONT_HERSHEY_PLAIN, 1.5, col)
 
         forehead1 = self.get_subface_coord(0.5, 0.18, 0.25, 0.15)
         self.draw_rect(forehead1)
@@ -208,9 +208,6 @@ class findFaceGetPulse(object):
 
         processed = np.array(self.data_buffer)
         self.samples = processed
-
-        print("Data Buffer Length:", len(self.data_buffer))
-        print("Processed Length:", len(processed))
 
         if L > 10:
 
