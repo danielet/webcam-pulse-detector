@@ -210,7 +210,7 @@ class findFaceGetPulse(object):
 
         print "L:", L
 
-        if L > 10:
+        if L > 0:
 
             self.output_dim = processed.shape[0]
 
