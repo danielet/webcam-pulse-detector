@@ -130,8 +130,6 @@ class findFaceGetPulse(object):
         quit()
 
     def run(self):
-
-        self.times.append(time.time() - self.t0)
         self.frame_out = self.frame_in
         self.gray = cv2.equalizeHist(cv2.cvtColor(self.frame_in,
                                                   cv2.COLOR_BGR2GRAY))
@@ -200,6 +198,7 @@ class findFaceGetPulse(object):
         vals = self.get_subface_means(forehead1)
         # print(vals)
         self.data_buffer.append(vals)
+        self.times.append(time.time() - self.t0)
         L = len(self.data_buffer)
 
         if L > self.buffer_size:
