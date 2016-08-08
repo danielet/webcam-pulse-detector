@@ -13,7 +13,7 @@ import time
 
 #modules required for the picamera attrbute of the raspberry pi
 from picamera.array import PiRGBArray
-from picamera import PiCamera
+from picamera import PiCamera, PiCameraMaxResolution
 import cv2
 import csv
 
@@ -183,9 +183,11 @@ class getPulseApp(object):
 if __name__ == "__main__":
 
     camera = PiCamera()
+    print PiCameraMaxResolution(camera)
     camera.resolution = (640, 480)
     camera.framerate = 32
     camera.rotation = 180
+    camera.hflip = True
     rawCapture = PiRGBArray(camera, size=(640, 480))
     time.sleep(0.1)
     parser = argparse.ArgumentParser(description='Webcam pulse detector.')
