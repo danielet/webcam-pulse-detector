@@ -210,8 +210,8 @@ class findFaceGetPulse(object):
         processed = np.array(self.data_buffer)
         self.samples = processed
 
-        print("Data Buffer Length:", self.data_buffer)
-        print("Processed Length:", processed)
+        print("Data Buffer Length:", len(self.data_buffer))
+        print("Processed Length:", len(processed))
 
         if L > 10:
 
