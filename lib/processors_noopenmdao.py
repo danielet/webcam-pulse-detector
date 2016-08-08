@@ -208,6 +208,8 @@ class findFaceGetPulse(object):
         processed = np.array(self.data_buffer)
         self.samples = processed
 
+        print "L:", L
+
         if L > 10:
 
             self.output_dim = processed.shape[0]
