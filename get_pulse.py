@@ -13,7 +13,7 @@ import time
 
 #modules required for the picamera attrbute of the raspberry pi
 from picamera.array import PiRGBArray
-from picamera import PiCamera, PiCameraMaxResolution
+from picamera import PiCamera
 import cv2
 import csv
 
@@ -26,7 +26,7 @@ class getPulseApp(object):
      Then the average green-light intensity in the forehead region is gathered
      over time, and the detected person's pulse is estimated.
     """
-    def __init__(self):
+    def __init__(self, with_video):
         # Imaging device - must be a connected camera (not an ip camera or mjpeg
         # stream)
         # self.videoinput = args.videoInput
@@ -47,7 +47,7 @@ class getPulseApp(object):
 
          # Basically, everything that isn't communication
          # to the camera device or part of the GUI
-         self.processor = findFaceGetPulse(bpm_limits=[50, 160], data_spike_limit=2500.,face_detector_smoothness=10.)
+         self.processor = findFaceGetPulse(bpm_limits=[50, 160], data_spike_limit=2500.,face_detector_smoothness=10., with_video=with_video)
 
          # Init parameters for the cardiac data plot
          self.bpm_plot = False
@@ -183,7 +183,6 @@ class getPulseApp(object):
 if __name__ == "__main__":
 
     camera = PiCamera()
-    print PiCameraMaxResolution(camera)
     camera.resolution = (640, 480)
     camera.framerate = 32
     camera.rotation = 180
@@ -191,8 +190,14 @@ if __name__ == "__main__":
     rawCapture = PiRGBArray(camera, size=(640, 480))
     time.sleep(0.1)
     parser = argparse.ArgumentParser(description='Webcam pulse detector.')
+    parser.add_argument('--with-video',
+                        action='store_true',
+                        dest='with_video',
+                        help='option to start the smart mirror program with frame capture included in the output.')
 
-    App = getPulseApp()
+    args = parser.parse_args()
+
+    App = getPulseApp(args.with_video)
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     # # grab the raw NumPy array representing the image, then initialize the timestamp
     # # and occupied/unoccupied text

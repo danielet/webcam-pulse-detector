@@ -1,3 +1,5 @@
+import argparse
+
 import numpy as np
 import time
 import cv2
@@ -16,7 +18,7 @@ def resource_path(relative_path):
 
 class findFaceGetPulse(object):
 
-    def __init__(self, bpm_limits=[], data_spike_limit=250, face_detector_smoothness=10):
+    def __init__(self, bpm_limits=[], data_spike_limit=250, face_detector_smoothness=10, with_video=False):
         self.frame_in = np.zeros((10, 10))
         self.frame_out = np.zeros((10, 10))
         self.fps = 0
@@ -35,6 +37,8 @@ class findFaceGetPulse(object):
         self.bpm = 0
         self.RRvalue = 0;
         self.actualTime = 0;
+
+        self.with_video = with_video
 
         dpath = resource_path("haarcascade_frontalface_alt.xml")
         if not os.path.exists(dpath):
@@ -130,7 +134,7 @@ class findFaceGetPulse(object):
         quit()
 
     def run(self):
-        self.frame_out = np.zeros(self.frame_in.shape)
+        self.frame_out = np.zeros(self.frame_in.shape) if not self.with_video else self.frame_in
         self.gray = cv2.equalizeHist(cv2.cvtColor(self.frame_in,
                                                   cv2.COLOR_BGR2GRAY))
 
