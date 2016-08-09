@@ -9,9 +9,9 @@ import argparse
 from serial import Serial
 import socket
 import sys
-import time 
+import time
 
-#modules required for the picamera attrbute of the raspberry pi 
+#modules required for the picamera attrbute of the raspberry pi
 from picamera.array import PiRGBArray
 from picamera import PiCamera
 import cv2
@@ -26,7 +26,7 @@ class getPulseApp(object):
      Then the average green-light intensity in the forehead region is gathered
      over time, and the detected person's pulse is estimated.
     """
-    def __init__(self):
+    def __init__(self, with_video):
         # Imaging device - must be a connected camera (not an ip camera or mjpeg
         # stream)
         # self.videoinput = args.videoInput
@@ -34,7 +34,7 @@ class getPulseApp(object):
          self.fileName = []
          self.cameras = []
          self.selected_cam = 0
-         
+
          self.w, self.h = 0, 0
          self.pressed = 0
          self.writeCSV = False
@@ -47,7 +47,7 @@ class getPulseApp(object):
 
          # Basically, everything that isn't communication
          # to the camera device or part of the GUI
-         self.processor = findFaceGetPulse(bpm_limits=[50, 160], data_spike_limit=2500.,face_detector_smoothness=10.)
+         self.processor = findFaceGetPulse(bpm_limits=[50, 160], data_spike_limit=2500.,face_detector_smoothness=10., with_video=with_video)
 
          # Init parameters for the cardiac data plot
          self.bpm_plot = False
@@ -55,8 +55,8 @@ class getPulseApp(object):
 
          # Maps keystrokes to specified methods
          #(A GUI window must have focus for these to work)
-         self.key_controls = {"s": self.toggle_search,
-                              "d": self.toggle_display_plot,                            
+         self.key_controls = {"s": lambda: None, #self.toggle_search,
+                              "d": self.toggle_display_plot,
                               "f": self.write_csv}
 
     def write_csv(self):
@@ -70,13 +70,13 @@ class getPulseApp(object):
 
          fn = "./OUTPUT_FILES/" + self.name +"_ICC2015_RR_" + d.strftime(format)
          # fn2 = self.name +"_ICC2015_HR_" + d.strftime(format)
-         fn = fn.replace(":", "_").replace(" ", "_")    
+         fn = fn.replace(":", "_").replace(" ", "_")
          # self.fileName = fn
          # with open(fn, 'a') as fp:
          self.fileName = open(fn , 'a')
 
          self.writeCSV = True
-        
+
 
     def toggle_search(self):
          """
@@ -85,7 +85,7 @@ class getPulseApp(object):
          Locking the forehead location in place significantly improves
          data quality, once a forehead has been sucessfully isolated.
          """
-         state = self.processor.find_faces_toggle()        
+         state = self.processor.find_faces_toggle()
          print ("face detection lock =", not state)
 
     def toggle_display_plot(self):
@@ -130,7 +130,7 @@ class getPulseApp(object):
             self.processor.frame_in = frame
             # process the image frame to perform all needed analysis
             self.processor.run()
-            
+
             # collect the output frame for display
             output_frame = self.processor.frame_out
 
@@ -149,12 +149,12 @@ class getPulseApp(object):
                 self.fileName.write("%s" % self.processor.bpm + " ")
                 self.fileName.write("%s" % self.processor.RRvalue + "\n")
                 # np.savetxt("./CSV_FILE/"+ self.fileName + ".csv", data , delimiter=',')
-            # data = np.array([self.processor.bpms , self.processor.RR]).T                     
-            # print(data)                            
+            # data = np.array([self.processor.bpms , self.processor.RR]).T
+            # print(data)
             # handle any key presses
             self.key_handler()
         else:
-            print ("Exiting")            
+            print ("Exiting")
             sys.exit()
 
 
@@ -186,17 +186,24 @@ if __name__ == "__main__":
     camera.resolution = (640, 480)
     camera.framerate = 32
     camera.rotation = 180
+    camera.hflip = True
     rawCapture = PiRGBArray(camera, size=(640, 480))
     time.sleep(0.1)
     parser = argparse.ArgumentParser(description='Webcam pulse detector.')
+    parser.add_argument('--with-video',
+                        action='store_true',
+                        dest='with_video',
+                        help='option to start the smart mirror program with frame capture included in the output.')
 
-    App = getPulseApp()
+    args = parser.parse_args()
+
+    App = getPulseApp(args.with_video)
     for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
     # # grab the raw NumPy array representing the image, then initialize the timestamp
     # # and occupied/unoccupied text
         image = frame.array
         key = cv2.waitKey(1) & 0xFF
-        App.main_loop(image)    
+        App.main_loop(image)
         rawCapture.truncate(0)
         # if the `q` key was pressed, break from the loop
         if key == ord("q"):
