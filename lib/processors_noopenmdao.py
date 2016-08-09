@@ -130,7 +130,7 @@ class findFaceGetPulse(object):
         quit()
 
     def run(self):
-        self.frame_out = self.frame_in
+        self.frame_out = np.zeros(self.frame_in.shape)
         self.gray = cv2.equalizeHist(cv2.cvtColor(self.frame_in,
                                                   cv2.COLOR_BGR2GRAY))
 
@@ -178,7 +178,6 @@ class findFaceGetPulse(object):
 
 	# set([1, 1, 2, 2]) will just be {1, 2}
         if set(self.face_rect) == set([1, 1, 2, 2]):
-            print "things"
             return
         # cv2.putText(
         #     self.frame_out, "Press 'C' to change camera (current: %s)" % str(
